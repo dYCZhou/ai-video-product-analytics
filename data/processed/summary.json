@@ -1,0 +1,48 @@
+{
+  "data_scope": {
+    "users": 5000,
+    "prompts": 320,
+    "tasks": 21508,
+    "actions": 44631,
+    "orders": 2029,
+    "successful_orders": 670,
+    "start_date": "2026-05-01",
+    "end_date": "2026-06-29"
+  },
+  "overall": {
+    "success_rate": 0.877254974893063,
+    "avg_duration_sec": 75.80760647201042,
+    "p90_duration_sec": 134.0,
+    "download_rate": 0.3818634725461098,
+    "edit_rate": 0.13297646809412764,
+    "pay_click_rate": 0.10753656985372058,
+    "payer_rate": 0.125,
+    "revenue": 12042.300000000003,
+    "arpu": 2.4084600000000007,
+    "arppu": 19.267680000000006,
+    "effective_video_users": 4414
+  },
+  "key_findings": {
+    "best_success_model": "Model_A",
+    "highest_quality_model": "Model_B",
+    "highest_style_model": "Model_C",
+    "highest_value_prompt": "商品广告",
+    "highest_payer_channel": "organic",
+    "d1_retention_rate": 0.25105189340813466,
+    "fast_bucket_download_rate": 0.48096192384769537,
+    "slow_bucket_download_rate": 0.1492842535787321
+  },
+  "ab_test": {
+    "pay_click_absolute_lift_pp": 10.972148161690642,
+    "pay_click_relative_lift": 0.4108215721557513,
+    "pay_click_z": 8.186519822507362,
+    "pay_click_p_value": 2.6888839556521175e-16,
+    "user_pay_absolute_lift_pp": 5.94920615434444,
+    "user_pay_relative_lift": 0.6489090060862042,
+    "user_pay_z": 6.407739475609966,
+    "user_pay_p_value": 1.4769299605782694e-10,
+    "arpu_relative_lift": 0.7061310609715137,
+    "revenue_ttest_p_value": 1.635198071978557e-07,
+    "srm_p_value": 1.0
+  }
+}
