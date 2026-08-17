@@ -28,7 +28,7 @@
     "highest_style_model": "Model_C",
     "highest_value_prompt": "商品广告",
     "highest_payer_channel": "organic",
-    "d1_retention_rate": 0.25105189340813466,
+    "d1_retention_rate": 0.28917609046849757,
     "fast_bucket_download_rate": 0.48096192384769537,
     "slow_bucket_download_rate": 0.1492842535787321
   },
@@ -41,8 +41,8 @@
     "user_pay_relative_lift": 0.6489090060862042,
     "user_pay_z": 6.407739475609966,
     "user_pay_p_value": 1.4769299605782694e-10,
-    "arpu_relative_lift": 0.7061310609715137,
-    "revenue_ttest_p_value": 1.635198071978557e-07,
+    "arpu_relative_lift": 0.7061310609715135,
+    "revenue_ttest_p_value": 1.6351980719785497e-07,
     "srm_p_value": 1.0
   }
 }

@@ -85,9 +85,9 @@ def main() -> None:
 |---|---:|---:|
 | 成功用户付费点击率 | {pct(ab.loc["control","pay_click_rate"])} | {pct(ab.loc["treatment","pay_click_rate"])} |
 | 用户付费率 | {pct(ab.loc["control","user_pay_rate"])} | {pct(ab.loc["treatment","user_pay_rate"])} |
-| 下载率 | {pct(ab.loc["control","download_rate"])} | {pct(ab.loc["treatment","download_rate"])} |
-| 退出率 | {pct(ab.loc["control","exit_rate"])} | {pct(ab.loc["treatment","exit_rate"])} |
-| 投诉率 | {pct(ab.loc["control","complaint_rate"])} | {pct(ab.loc["treatment","complaint_rate"])} |
+| 成功任务下载率 | {pct(ab.loc["control","task_download_rate"])} | {pct(ab.loc["treatment","task_download_rate"])} |
+| 任务退出率 | {pct(ab.loc["control","task_exit_rate"])} | {pct(ab.loc["treatment","task_exit_rate"])} |
+| 成功任务投诉率 | {pct(ab.loc["control","task_complaint_rate"])} | {pct(ab.loc["treatment","task_complaint_rate"])} |
 | ARPU | ¥{ab.loc["control","arpu"]:.2f} | ¥{ab.loc["treatment","arpu"]:.2f} |
 
 付费点击率提升 {pp(exp["pay_click_absolute_lift_pp"])}（相对提升 {pct(exp["pay_click_relative_lift"])}，双侧比例检验 p={exp["pay_click_p_value"]:.4g}）；用户付费率提升 {pp(exp["user_pay_absolute_lift_pp"])}（p={exp["user_pay_p_value"]:.4g}）。样本比例失衡检验 p={exp["srm_p_value"]:.4f}，未发现明显分桶异常。

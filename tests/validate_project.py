@@ -55,7 +55,24 @@ def main() -> None:
     for group in ["control", "treatment"]:
         assert close(ab_sql.loc[group, "pay_click_rate"], ab_py.loc[group, "pay_click_rate"])
         assert close(ab_sql.loc[group, "user_pay_rate"], ab_py.loc[group, "user_pay_rate"])
+        for metric in [
+            "task_download_rate",
+            "task_exit_rate",
+            "task_regenerate_rate",
+            "task_complaint_rate",
+        ]:
+            assert close(ab_sql.loc[group, metric], ab_py.loc[group, metric])
         assert close(ab_sql.loc[group, "revenue"], ab_py.loc[group, "revenue"], tolerance=0.01)
+
+    retention_sql = sql_results["07_retention_analysis.sql"].set_index("retention_day")
+    retention_py = pd.read_csv(
+        ROOT / "data" / "processed" / "retention_metrics.csv"
+    ).set_index("retention_day")
+    for day in retention_py.index:
+        assert int(retention_sql.loc[day, "eligible_d0_users"]) == int(
+            retention_py.loc[day, "eligible_d0_users"]
+        )
+        assert close(retention_sql.loc[day, "retention_rate"], retention_py.loc[day, "retention_rate"])
 
     connection.close()
     assert len(list((ROOT / "sql").glob("*.sql"))) == 10

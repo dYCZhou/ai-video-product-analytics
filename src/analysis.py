@@ -238,16 +238,25 @@ def build_retention(t: dict[str, pd.DataFrame]) -> pd.DataFrame:
     )
     activity["day_gap"] = (activity["active_day"] - activity["register_day"]).dt.days
     d0_users = set(activity.loc[activity["day_gap"].eq(0), "user_id"])
+    data_end = t["generation_tasks"]["submit_time"].max().normalize()
+    register_day_by_user = users.set_index("user_id")["register_day"]
     cohorts = []
     for gap in [0, 1, 7, 14]:
+        # Only users with a complete observation window are eligible for Dn.
+        mature_users = set(
+            register_day_by_user.loc[
+                register_day_by_user.le(data_end - pd.Timedelta(days=gap))
+            ].index
+        )
+        eligible_d0_users = d0_users & mature_users
         active_users = set(activity.loc[activity["day_gap"].eq(gap), "user_id"])
-        retained = len(d0_users & active_users)
+        retained = len(eligible_d0_users & active_users)
         cohorts.append(
             {
                 "retention_day": f"D{gap}",
                 "retained_users": retained,
-                "d0_cohort_users": len(d0_users),
-                "retention_rate": safe_rate(retained, len(d0_users)),
+                "eligible_d0_users": len(eligible_d0_users),
+                "retention_rate": safe_rate(retained, len(eligible_d0_users)),
             }
         )
     return pd.DataFrame(cohorts)
@@ -275,22 +284,11 @@ def build_ab_metrics(t: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict]:
     eligible_users = set(tasks["user_id"])
     success_users = set(tasks.loc[tasks["status"].eq("success"), "user_id"])
     click_users = set(actions.loc[actions["action_type"].eq("pay_click"), "user_id"])
-    download_users = set(actions.loc[actions["action_type"].eq("download"), "user_id"])
-    exit_users = set(actions.loc[actions["action_type"].eq("exit"), "user_id"])
-    regenerate_users = set(
-        actions.loc[actions["action_type"].eq("regenerate"), "user_id"]
-    )
+    action_sets = action_task_sets(actions)
     paid = orders.loc[orders["pay_status"].eq("success")]
     paid_users = set(paid["user_id"])
     revenue_by_user = paid.groupby("user_id")["amount"].sum()
-    complained_users = set(
-        tasks[["task_id", "user_id"]]
-        .merge(
-            scores.loc[scores["complaint_flag"].eq(1), ["task_id"]],
-            on="task_id",
-            how="inner",
-        )["user_id"]
-    )
+    complained_tasks = set(scores.loc[scores["complaint_flag"].eq(1), "task_id"])
 
     rows = []
     for group_name, assignment in experiment.groupby("group"):
@@ -298,6 +296,11 @@ def build_ab_metrics(t: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict]:
         success = assigned & success_users
         clicks = assigned & click_users
         payers = assigned & paid_users
+        group_tasks = tasks.loc[tasks["user_id"].isin(assigned)]
+        task_ids = set(group_tasks["task_id"])
+        successful_task_ids = set(
+            group_tasks.loc[group_tasks["status"].eq("success"), "task_id"]
+        )
         revenue = revenue_by_user.reindex(list(assigned)).fillna(0).sum()
         rows.append(
             {
@@ -306,18 +309,25 @@ def build_ab_metrics(t: dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, dict]:
                 "successful_users": len(success),
                 "click_users": len(clicks),
                 "payer_users": len(payers),
+                "tasks": len(task_ids),
+                "successful_tasks": len(successful_task_ids),
                 "pay_click_rate": safe_rate(len(clicks), len(success)),
                 "click_to_pay_rate": safe_rate(len(payers), len(clicks)),
                 "user_pay_rate": safe_rate(len(payers), len(assigned)),
-                "download_rate": safe_rate(
-                    len(assigned & download_users), len(success)
+                "task_download_rate": safe_rate(
+                    len(successful_task_ids & action_sets.get("download", set())),
+                    len(successful_task_ids),
                 ),
-                "exit_rate": safe_rate(len(assigned & exit_users), len(assigned)),
-                "regenerate_rate": safe_rate(
-                    len(assigned & regenerate_users), len(success)
+                "task_exit_rate": safe_rate(
+                    len(task_ids & action_sets.get("exit", set())), len(task_ids)
                 ),
-                "complaint_rate": safe_rate(
-                    len(assigned & complained_users), len(success)
+                "task_regenerate_rate": safe_rate(
+                    len(successful_task_ids & action_sets.get("regenerate", set())),
+                    len(successful_task_ids),
+                ),
+                "task_complaint_rate": safe_rate(
+                    len(successful_task_ids & complained_tasks),
+                    len(successful_task_ids),
                 ),
                 "revenue": revenue,
                 "arpu": safe_rate(revenue, len(assigned)),
